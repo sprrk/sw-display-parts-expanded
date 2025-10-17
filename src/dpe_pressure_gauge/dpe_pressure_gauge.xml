@@ -39,7 +39,7 @@
 	</logic_nodes>
 	<couplings/>
 	<voxels>
-		<voxel flags="1" physics_shape="0">
+		<voxel flags="2" physics_shape="0">
 			<position/>
 			<physics_shape_rotation/>
 		</voxel>

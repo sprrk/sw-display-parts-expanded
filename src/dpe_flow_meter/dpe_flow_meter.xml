@@ -41,11 +41,11 @@ Boolean input values:
 	</logic_nodes>
 	<couplings/>
 	<voxels>
-		<voxel flags="1" physics_shape="0">
+		<voxel flags="2" physics_shape="0">
 			<position/>
 			<physics_shape_rotation/>
 		</voxel>
-		<voxel flags="0" physics_shape="0">
+		<voxel flags="2" physics_shape="0">
 			<position x="0" y="1" z="0"/>
 			<physics_shape_rotation/>
 		</voxel>
