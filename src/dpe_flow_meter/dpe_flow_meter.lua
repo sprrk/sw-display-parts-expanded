@@ -31,11 +31,11 @@ local odometer_liters = 0.0 -- Total volume passed since last reset
 local FLOW_CACHE = {}
 
 ---@class FlowMeterSettings
----@field scale number
+---@field max_flow number
 
 ---@type FlowMeterSettings
 local settings = {
-	scale = 1.0,
+	max_flow = 1.0,
 }
 
 ---@param value number
@@ -99,9 +99,9 @@ function onTick(_)
 	if settings_read_ticks == 0 then
 		local _scale = composite.float_values[1]
 		if _scale > 0 then
-			settings.scale = _scale
+			settings.max_flow = _scale * 10
 		else
-			settings.scale = DEFAULT_SCALE
+			settings.max_flow = DEFAULT_SCALE * 10
 		end
 	end
 
@@ -131,7 +131,7 @@ function onRender()
 	end
 
 	-- Render needle
-	local t = clamp(flow / settings.scale, 0, 1)
+	local t = clamp(flow / settings.max_flow, 0, 1)
 	local index = math.floor(t * MAX_CACHE_INDEX + 0.5)
 	component.renderMesh0(FLOW_CACHE[index])
 
