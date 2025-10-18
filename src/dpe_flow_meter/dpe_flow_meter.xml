@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definition name="Flow Meter" category="6" type="66" mass="1" value="20" flags="24576" tags="DPE,mod,dial" mesh_data_name="dpe_flow_meter.mesh" mesh_0_name="dpe_flow_meter_needle.mesh" mesh_1_name="dpe_flow_meter_counter_wheel_black.mesh" mesh_2_name="dpe_flow_meter_counter_wheel_white.mesh" constraint_axis="1" max_motor_force="100" max_motor_speed="10" cable_radius="16" cable_length="-431602080" buoy_radius="1" buoy_factor="1" buoy_force="100" force_emitter_max_force="200" force_emitter_max_vector="1" engine_max_force="1000" wheel_radius="0.25" button_type="1" light_intensity="1" light_range="1" light_ies_map="graphics/ies/ies_default.txtr" light_fov="1" door_lower_limit="-1" door_upper_limit="1" dynamic_max_rotation="3.141593" magnet_force="1" pump_pressure="0.01" torque_component_type="1" lua_filename="dpe_flow_meter.lua">
-  <tooltip_properties short_description="A flow meter with an analog dial and an odometer."/>
+<definition name="Flow Meter" category="6" type="66" mass="0.5" value="20" flags="24576" tags="DPE,mod,dial" mesh_data_name="dpe_flow_meter.mesh" mesh_0_name="dpe_flow_meter_needle.mesh" mesh_1_name="dpe_flow_meter_counter_wheel_black.mesh" mesh_2_name="dpe_flow_meter_counter_wheel_white.mesh" constraint_axis="1" max_motor_force="100" max_motor_speed="10" cable_radius="16" cable_length="-431602080" buoy_radius="1" buoy_factor="1" buoy_force="100" force_emitter_max_force="200" force_emitter_max_vector="1" engine_max_force="1000" wheel_radius="0.25" button_type="1" light_intensity="1" light_range="1" light_ies_map="graphics/ies/ies_default.txtr" light_fov="1" door_lower_limit="-1" door_upper_limit="1" dynamic_max_rotation="3.141593" magnet_force="1" pump_pressure="0.01" torque_component_type="1" lua_filename="dpe_flow_meter.lua">
+  <tooltip_properties short_description="A flow meter with an analog dial and an odometer. The odometer can be reset, and the scale can be configured using a composite input.
+
+Note: This part does not have any physics."/>
 	<sfx_datas/>
 	<surfaces>
 		<surface orientation="1" shape="0">
