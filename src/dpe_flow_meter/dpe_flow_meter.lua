@@ -11,7 +11,7 @@ local MAX_CACHE_INDEX = math.floor(NEEDLE_SWEEP_ANGLE_DEG / ANGLE_RESOLUTION_DEG
 -- Slot definitions
 local FLOW_INPUT_SLOT = 0
 local SETTINGS_SLOT = 0
-local ODOMETER_OUTPUT_SLOT = 1
+local ODOMETER_OUTPUT_SLOT = 0
 
 -- Odometer configuration
 local COUNTER_WHEEL_Y = -0.175
