@@ -3,6 +3,9 @@ local schemas = require("lib/volumetric_display/schemas")
 local makeMessageReceiverFunc = require("sw-lua-lib/cmp/message_receiver")
 local MESSAGE_TYPES = schemas.MESSAGE_TYPES
 
+local COMPOSITE_SLOT = 0
+local BASE_SIZE = matrix.scale(10, 10, 10) -- Rescale 0.1x0.1x0.1 to 1x1x1
+
 -- NOTE: Use cases:
 --       - Debug displays
 --       - Monochrome displays
@@ -35,14 +38,20 @@ local renderer = {
 }
 
 ---@param origin EntityPosition
-local function Voxel(origin)
+---@param size number
+local function Voxel(origin, size)
 	---@class Voxel
 	---@field origin EntityPosition
-	local instance = { origin = origin }
+	---@field size number
+	local instance = { origin = origin, size = size }
+
+	local m = matrix.translation(origin.x, origin.y, origin.z)
+	m = matrix.multiply(m, BASE_SIZE)
+	m = matrix.multiply(m, matrix.scale(size, size, size)) -- Rescale to required size
 
 	---@return RenderFunc[]
 	function instance:getRenderFuncs()
-		return { renderer.mesh0(origin) }
+		return { renderer.mesh0(m) }
 	end
 
 	return instance
@@ -50,6 +59,8 @@ end
 
 ---@param data TextCreateMessage
 local function Text(data)
+	-- TODO: Implement scale/size
+
 	local text = data.t1 .. data.t2 .. data.t3 .. data.t4
 
 	---@class Text
@@ -58,18 +69,26 @@ local function Text(data)
 	local instance = { origin = data.origin, text = text }
 
 	-- Rasterize/pre-render
+	---@type Matrix[]
 	local positions = {}
 	for i = 1, #text do
 		local c = text:sub(i, i)
-		table.insert(positions, char(c, data.origin.x, data.origin.y))
+		if c ~= " " then
+			local xOffset = i * 4 -- 3x4 font, so we need to shift 4px per char
+			local charPositions = char(c, data.origin.x + xOffset, data.origin.y)
+			for p = 1, #charPositions do
+				table.insert(positions, charPositions[p])
+			end
+		end
 	end
 
 	---@return RenderFunc[]
 	function instance:getRenderFuncs()
 		local funcs = {}
 		for i = 1, #positions do
-			local pos = positions[i]
-			table.insert(funcs, renderer.mesh0(pos))
+			local m = positions[i]
+			m = matrix.multiply(m, BASE_SIZE)
+			table.insert(funcs, renderer.mesh0(m))
 		end
 		return funcs
 	end
@@ -125,14 +144,13 @@ local function EntityGroup(origin)
 			return renderFuncs
 		end
 
-		local funcs = {}
 		for i = 1, #entities do
 			local entityInitialized = entityInitStates[i]
 			if not entityInitialized then -- Only pre-render when necessary
 				local entity = entities[i]
 				local entityFuncs = entity:getRenderFuncs()
 				for v = 1, #entityFuncs do
-					table.insert(funcs, entityFuncs[v])
+					table.insert(renderFuncs, entityFuncs[v])
 				end
 				entityInitStates[i] = true
 			end
@@ -179,6 +197,8 @@ local receiveMessage = makeMessageReceiverFunc({
 		local group = entityGroups[msg.groupID]
 		if group then
 			group:addVoxel(Voxel(msg.origin))
+		else
+			error_invalid_group()
 		end
 	end,
 	[MESSAGE_TYPES.DELETE_VOXEL] = function(data)
@@ -195,17 +215,22 @@ local receiveMessage = makeMessageReceiverFunc({
 })
 
 function onTick()
-	local inputData = component.getInputLogicSlotComposite(1)
-	receiveMessage(inputData)
+	local composite, ok = component.getInputLogicSlotComposite(COMPOSITE_SLOT)
 
-	-- TODO: Outpu debug data, i.e. number of render funcs, cache hit rate, etc.
+	if not ok then
+		error()
+	end
+
+	receiveMessage(composite)
+
+	-- TODO: Output debug data, i.e. number of render funcs, cache hit rate, etc.
 end
 
 function onRender()
-	for i = 1, #entityGroups do
-		local funcs = entityGroups[i]:getRenderFuncs()
-		for f = 1, #funcs do
-			funcs[f]()
+	for _, group in pairs(entityGroups) do
+		local funcs = group:getRenderFuncs()
+		for i = 1, #funcs do
+			funcs[i]()
 		end
 	end
 end
