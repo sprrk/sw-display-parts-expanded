@@ -1,10 +1,12 @@
-local char = require("lib/volumetric_display/font_3x4")
+local Font = require("lib/volumetric_display/font")
 local schemas = require("lib/volumetric_display/schemas")
 local makeMessageReceiverFunc = require("sw-lua-lib/cmp/message_receiver")
 local MESSAGE_TYPES = schemas.MESSAGE_TYPES
 
 local COMPOSITE_SLOT = 0
 local BASE_SIZE = matrix.scale(10, 10, 10) -- Rescale 0.1x0.1x0.1 to 1x1x1
+
+local font3x4 = Font(require("lib/volumetric_display/font_3x4"))
 
 -- NOTE: Use cases:
 --       - Debug displays
@@ -59,36 +61,39 @@ end
 
 ---@param data TextCreateMessage
 local function Text(data)
-	-- TODO: Implement scale/size
-
 	local text = data.t1 .. data.t2 .. data.t3 .. data.t4
 
 	---@class Text
 	---@field origin EntityPosition
+	---@field size number
 	---@field text string
-	local instance = { origin = data.origin, text = text }
+	local instance = { origin = data.origin, size = data.size, text = text }
 
-	-- Rasterize/pre-render
-	---@type Matrix[]
-	local positions = {}
-	for i = 1, #text do
-		local c = text:sub(i, i)
-		if c ~= " " then
-			local xOffset = i * 4 -- 3x4 font, so we need to shift 4px per char
-			local charPositions = char(c, data.origin.x + xOffset, data.origin.y)
-			for p = 1, #charPositions do
-				table.insert(positions, charPositions[p])
-			end
-		end
-	end
+	-- TODO: Implement scaling
+	local size = data.size
+	local font = font3x4
+	local xShift = font.sheet.width + font.sheet.gap -- TODO: Adjust by scaling
 
 	---@return RenderFunc[]
 	function instance:getRenderFuncs()
 		local funcs = {}
-		for i = 1, #positions do
-			local m = positions[i]
-			m = matrix.multiply(m, BASE_SIZE)
-			table.insert(funcs, renderer.mesh0(m))
+		for i = 1, #text do
+			local c = text:sub(i, i)
+			local xOffset = (i - 1) * xShift
+
+			local pixels = font:char(c)
+			local yOffset = data.origin.y
+
+			for p = 1, #pixels do
+				local pixel = pixels[p]
+				local x = pixel[1]
+				local y = pixel[2]
+				local t = matrix.translation(x + xOffset, yOffset - y, data.origin.z)
+
+				t = matrix.multiply(t, BASE_SIZE)
+
+				table.insert(funcs, renderer.mesh0(t))
+			end
 		end
 		return funcs
 	end
@@ -196,7 +201,7 @@ local receiveMessage = makeMessageReceiverFunc({
 		local msg = schemas.VoxelCreateMessageSchema:deserialize(data)
 		local group = entityGroups[msg.groupID]
 		if group then
-			group:addVoxel(Voxel(msg.origin))
+			group:addVoxel(Voxel(msg.origin, msg.size))
 		else
 			error_invalid_group()
 		end

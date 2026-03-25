@@ -27,12 +27,13 @@ local function createGroup()
 end
 
 ---@param origin EntityPosition
+---@param size number
 ---@return nil
-local function createVoxel(origin)
+local function createVoxel(origin, size)
 	local createVoxelMsg = schemas.VoxelCreateMessageSchema:serialize({
 		groupID = GROUP_ID,
 		origin = origin,
-		size = 1.0,
+		size = size,
 	})
 
 	local message, err = encodeMessage(createVoxelMsg, MESSAGE_TYPES.CREATE_VOXEL)
@@ -49,11 +50,11 @@ local function createText(origin)
 	local createTextMsg = schemas.TextCreateMessageSchema:serialize({
 		groupID = GROUP_ID,
 		origin = origin,
-		size = 1.0,
-		t1 = "aba",
-		t2 = "   ",
-		t3 = "   ",
-		t4 = "   ",
+		size = 0.25,
+		t1 = "abc",
+		t2 = "def",
+		t3 = "ABC",
+		t4 = "DEF",
 	})
 
 	local message, err = encodeMessage(createTextMsg, MESSAGE_TYPES.CREATE_TEXT)
@@ -70,9 +71,9 @@ local function initialize()
 	createGroup()
 
 	-- Add a few voxels
-	createVoxel({ x = 0, y = 0, z = 0 })
-	createVoxel({ x = 0, y = 1, z = 0 })
-	createVoxel({ x = 0, y = 2, z = 0 })
+	createVoxel({ x = 0, y = 0, z = 1 }, 0.25)
+	createVoxel({ x = 0, y = 0, z = 2 }, 0.25)
+	createVoxel({ x = -0.125, y = 0.125, z = -1.125 }, 0.5)
 
 	-- Add some text
 	createText({ x = 1, y = 5, z = 0 })

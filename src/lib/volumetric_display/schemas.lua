@@ -27,6 +27,7 @@ local CompositeSchema = require("sw-lua-lib/composite/schema/schema")
 ---@class (exact) TextCreateMessage
 ---@field groupID integer
 ---@field origin EntityPosition
+---@field size number
 ---@field t1 string
 ---@field t2 string
 ---@field t3 string
@@ -60,10 +61,11 @@ local VoxelCreateMessageSchema = CompositeSchema({
 local TextCreateMessageSchema = CompositeSchema({
 	groupID = FloatField(1),
 	origin = CompositeSchema({ x = FloatField(2), y = FloatField(3), z = FloatField(4) }, 1),
-	t1 = Ascii3Field(5),
-	t2 = Ascii3Field(6),
-	t3 = Ascii3Field(7),
-	t4 = Ascii3Field(8),
+	size = FloatField(5),
+	t1 = Ascii3Field(6),
+	t2 = Ascii3Field(7),
+	t3 = Ascii3Field(8),
+	t4 = Ascii3Field(9),
 })
 
 local MESSAGE_TYPES = {
