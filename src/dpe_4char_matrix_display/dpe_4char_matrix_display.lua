@@ -15,7 +15,7 @@ local MESSAGE_TYPE_SET_DOT_MATRIX_TEXT = 1000
 
 local powered = false
 
-local display = DotMatrixDisplay({ x = 0, y = 0, z = 0 }, 4, 0.003)
+local display = DotMatrixDisplay({ x = 0, y = 0, z = 0 }, 4, 0.003, component.renderMesh0)
 
 ---@param handlers table<CMPMessageType, fun(data: CompositeData)>
 ---@return fun(data: CompositeData): nil

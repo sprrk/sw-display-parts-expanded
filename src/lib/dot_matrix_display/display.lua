@@ -44,8 +44,9 @@ end
 ---@param origin DotMatrixDisplayOrigin
 ---@param charCount integer Amount of characters
 ---@param pixelSize number
+---@param renderFunc fun(matrix: Matrix)
 ---@return DotMatrixDisplay
-local function DotMatrixDisplay(origin, charCount, pixelSize)
+local function DotMatrixDisplay(origin, charCount, pixelSize, renderFunc)
 	---@class DotMatrixDisplay
 	local instance = {}
 
@@ -68,8 +69,6 @@ local function DotMatrixDisplay(origin, charCount, pixelSize)
 
 	---@type string
 	local currentValue = ""
-
-	local renderMesh0 = component.renderMesh0 -- TODO: Allow configuring render func via arg
 
 	-- -- Re-usable pixel buffer
 	local rowBuffer = {}
@@ -298,7 +297,7 @@ local function DotMatrixDisplay(origin, charCount, pixelSize)
 				local buf = buffers[i]
 				local nBuf = #buf
 				for j = 1, nBuf do
-					renderMesh0(buf[j])
+					renderFunc(buf[j])
 				end
 			end
 		end
