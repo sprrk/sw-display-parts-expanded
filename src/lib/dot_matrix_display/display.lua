@@ -43,8 +43,9 @@ end
 
 ---@param origin DotMatrixDisplayOrigin
 ---@param charCount integer Amount of characters
+---@param pixelSize number
 ---@return DotMatrixDisplay
-local function DotMatrixDisplay(origin, charCount)
+local function DotMatrixDisplay(origin, charCount, pixelSize)
 	---@class DotMatrixDisplay
 	local instance = {}
 
@@ -54,7 +55,6 @@ local function DotMatrixDisplay(origin, charCount)
 		buffers[i] = {}
 		_chars[i] = ""
 	end
-	local pixelSize = 0.003 -- TODO: Make configurable
 	local fontWidth = 5
 	local fontHeight = 7
 	local enabled = true
@@ -162,6 +162,8 @@ local function DotMatrixDisplay(origin, charCount)
 			end
 		end
 
+		local ti = table.insert
+
 		-- Create horizontal segments
 		for r = 1, fontHeight do
 			local row = rowBuffer[r]
@@ -171,12 +173,7 @@ local function DotMatrixDisplay(origin, charCount)
 				local length = lengths[i][2]
 
 				if length > 1 then
-					local x = start - 1
-					local y = r - 1
-					local w = length
-					local h = 1
-
-					table.insert(segments, segment(x, y, w, h))
+					ti(segments, segment(start - 1, r - 1, length, 1))
 
 					-- Mark covered pixels
 					for k = 0, length - 1 do
@@ -195,12 +192,7 @@ local function DotMatrixDisplay(origin, charCount)
 				local length = lengths[i][2]
 
 				if length > 1 then
-					local x = c - 1
-					local y = start - 1
-					local w = 1
-					local h = length
-
-					table.insert(segments, segment(x, y, w, h))
+					ti(segments, segment(c - 1, start - 1, 1, length))
 
 					-- Mark covered pixels
 					for k = 0, length - 1 do
@@ -214,7 +206,7 @@ local function DotMatrixDisplay(origin, charCount)
 		for r = 1, fontHeight do
 			for c = 1, fontWidth do
 				if rowBuffer[r][c] == 1 and not rendered[r][c] then
-					table.insert(segments, segment(c - 1, r - 1, 1, 1))
+					ti(segments, segment(c - 1, r - 1, 1, 1))
 				end
 			end
 		end
@@ -244,9 +236,7 @@ local function DotMatrixDisplay(origin, charCount)
 
 		-- Move segments to correct position on screen
 		for idx = 1, #baseSegments do
-			local m = baseSegments[idx]
-			m = matrix.multiply(matrix.translation(xOffset * pixelSize, 0, 0), m)
-			table.insert(segments, m)
+			table.insert(segments, matrix.multiply(matrix.translation(xOffset * pixelSize, 0, 0), baseSegments[idx]))
 		end
 
 		if charSegmentsCache[char] == nil then
