@@ -221,9 +221,9 @@ local function DotMatrixDisplay(origin, charCount, pixelSize, renderFunc)
 	---@param i integer Char index
 	---@return Matrix[]
 	local function getCharSegments(char, i)
-		local cached = (charSegmentsCache[char] or {})[i]
-		if cached ~= nil then
-			return cached
+		local charCache = charSegmentsCache[char]
+		if charCache and charCache[i] then
+			return charCache[i]
 		end
 
 		local baseSegments = getCharBaseSegments(char)
@@ -238,10 +238,11 @@ local function DotMatrixDisplay(origin, charCount, pixelSize, renderFunc)
 			table.insert(segments, matrix.multiply(matrix.translation(xOffset * pixelSize, 0, 0), baseSegments[idx]))
 		end
 
-		if charSegmentsCache[char] == nil then
-			charSegmentsCache[char] = {}
+		if not charCache then
+			charCache = {}
+			charSegmentsCache[char] = charCache
 		end
-		charSegmentsCache[char][i] = segments
+		charCache[i] = segments
 
 		return segments
 	end
