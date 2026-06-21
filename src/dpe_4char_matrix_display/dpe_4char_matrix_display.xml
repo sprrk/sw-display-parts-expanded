@@ -35,6 +35,9 @@ Note: This part does not have any physics."/>
     <logic_node label="CMP Message Input" mode="1" type="5" description="Message input.">
 			<position/>
 		</logic_node>
+		<logic_node label="Display" mode="1" type="0" description="Enables the display when receiving an on signal.">
+			<position/>
+		</logic_node>
 	</logic_nodes>
 	<couplings/>
 	<voxels>
